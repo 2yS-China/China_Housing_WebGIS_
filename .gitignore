@@ -1,0 +1,25 @@
+# Dependencies and build output
+node_modules/
+target/
+dist/
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Local configuration and logs
+.env
+.env.*
+!.env.example
+*.log
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Generated database backups (the supplied snapshot is deliberately included)
+*.dump
+!database/china_housing.dump
