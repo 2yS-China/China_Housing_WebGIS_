@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gis.housing.mapper.MonthlyPriceMapper">
+
+    <select id="selectCityTrend" resultType="com.gis.housing.entity.MonthlyPrice">
+        SELECT id, city_code, year, month, price
+        FROM t_monthly_price
+        WHERE city_code = #{cityCode} AND price IS NOT NULL
+        ORDER BY year, month
+    </select>
+
+    <select id="selectCityRank" resultType="com.gis.housing.dto.CityRankDTO">
+        SELECT c.city_code, c.city_name, c.province_name, c.lon, c.lat,
+               m.price,
+               RANK() OVER (ORDER BY m.price
+               <if test="order == 'desc'">DESC</if>
+               <if test="order == 'asc'">ASC</if>
+               ) AS rank
+        FROM t_monthly_price m
+        JOIN t_city c ON c.city_code = m.city_code
+        WHERE m.year = #{year} AND m.month = #{month} AND m.price IS NOT NULL
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectMomChange" resultType="com.gis.housing.dto.PriceChangeDTO">
+        SELECT c.city_code, c.city_name, c.province_name, c.lon, c.lat,
+               prev.price AS start_price,
+               curr.price AS end_price,
+               CASE WHEN prev.price > 0
+                    THEN ROUND((curr.price - prev.price) / prev.price * 100, 2)
+                    ELSE NULL
+               END AS change_pct
+        FROM t_monthly_price curr
+        JOIN t_city c ON c.city_code = curr.city_code
+        LEFT JOIN t_monthly_price prev
+            ON prev.city_code = curr.city_code
+           AND (
+                (prev.year = curr.year AND prev.month = curr.month - 1)
+                OR (curr.month = 1 AND prev.year = curr.year - 1 AND prev.month = 12)
+               )
+        WHERE curr.year = #{year} AND curr.month = #{month}
+          AND curr.price IS NOT NULL
+        ORDER BY change_pct DESC NULLS LAST
+    </select>
+
+    <select id="selectCustomChange" resultType="com.gis.housing.dto.PriceChangeDTO">
+        SELECT c.city_code, c.city_name, c.province_name, c.lon, c.lat,
+               s.price AS start_price,
+               e.price AS end_price,
+               CASE WHEN s.price > 0
+                    THEN ROUND((e.price - s.price) / s.price * 100, 2)
+                    ELSE NULL
+               END AS change_pct
+        FROM t_monthly_price s
+        JOIN t_monthly_price e ON e.city_code = s.city_code
+            AND e.year = #{endYear} AND e.month = #{endMonth}
+        JOIN t_city c ON c.city_code = s.city_code
+        WHERE s.year = #{startYear} AND s.month = #{startMonth}
+          AND s.price IS NOT NULL AND e.price IS NOT NULL
+        ORDER BY change_pct
+        <if test="order == 'desc'">DESC</if>
+        <if test="order == 'asc'">ASC</if>
+        NULLS LAST
+        LIMIT #{limit}
+    </select>
+
+</mapper>

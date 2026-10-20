@@ -1,0 +1,51 @@
+{
+  "月度房价": {
+    "rows": 42522,
+    "unique_codes": 626,
+    "provinces": 31,
+    "years": [
+      2010,
+      2025
+    ],
+    "time_min": [
+      2010,
+      1
+    ],
+    "time_max": [
+      2025,
+      12
+    ],
+    "unique_months": 188,
+    "missing_prices": 0,
+    "positive_prices": 42522,
+    "duplicates": 0,
+    "regions_per_month_range": [
+      1,
+      611
+    ]
+  },
+  "年度房价": {
+    "rows": 4119,
+    "unique_codes": 626,
+    "provinces": 31,
+    "years": [
+      2010,
+      2025
+    ]
+  },
+  "coordinate_assignment": {
+    "name_matched": 320,
+    "province_fallback": 306,
+    "missing": 0
+  },
+  "2025_month_counts": {
+    "1": 361,
+    "2": 361,
+    "3": 361,
+    "4": 361,
+    "5": 361,
+    "6": 361,
+    "7": 361,
+    "12": 1
+  }
+}

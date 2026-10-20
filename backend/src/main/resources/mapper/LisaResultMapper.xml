@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gis.housing.mapper.LisaResultMapper">
+
+    <select id="selectLisaWithCity" resultType="com.gis.housing.dto.MoranDTO$LisaItem">
+        SELECT l.city_code, c.city_name, c.lon, c.lat,
+               l.local_i, l.p_value, l.cluster_type
+        FROM t_lisa_result l
+        JOIN t_city c ON c.city_code = l.city_code
+        WHERE l.moran_id = #{moranId}
+        ORDER BY l.cluster_type, l.local_i DESC
+    </select>
+
+</mapper>

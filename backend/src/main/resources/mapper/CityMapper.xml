@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gis.housing.mapper.CityMapper">
+
+    <select id="searchCity" resultType="com.gis.housing.entity.City">
+        SELECT city_code, city_name, province_name, lon, lat
+        FROM t_city
+        WHERE city_name LIKE CONCAT('%', #{keyword}, '%')
+           OR city_code = #{keyword}
+        ORDER BY city_code
+        LIMIT 20
+    </select>
+
+    <select id="selectCityPriceMap" resultType="com.gis.housing.dto.CityPriceDTO">
+        SELECT c.city_code, c.city_name, c.province_name, c.lon, c.lat,
+               m.year, m.month, m.price
+        FROM t_city c
+        JOIN t_monthly_price m ON m.city_code = c.city_code
+        WHERE m.year = #{year} AND m.month = #{month}
+          AND m.price IS NOT NULL
+        ORDER BY m.price DESC
+    </select>
+
+    <select id="filterCities" resultType="com.gis.housing.dto.CityPriceDTO"
+            parameterType="com.gis.housing.dto.FilterParam">
+        SELECT c.city_code, c.city_name, c.province_name, c.lon, c.lat,
+               m.year, m.month, m.price
+        FROM t_city c
+        JOIN t_monthly_price m ON m.city_code = c.city_code
+        <where>
+            m.price IS NOT NULL
+            <if test="param.provinces != null and param.provinces.size() > 0">
+                AND c.province_name IN
+                <foreach collection="param.provinces" item="prov" open="(" separator="," close=")">
+                    #{prov}
+                </foreach>
+            </if>
+            <if test="param.endYear != null and param.endMonth != null">
+                AND m.year = #{param.endYear} AND m.month = #{param.endMonth}
+            </if>
+            <if test="param.minPrice != null">
+                AND m.price &gt;= #{param.minPrice}
+            </if>
+            <if test="param.maxPrice != null">
+                AND m.price &lt;= #{param.maxPrice}
+            </if>
+        </where>
+        ORDER BY m.price DESC
+    </select>
+
+</mapper>

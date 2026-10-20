@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gis.housing.mapper.SpatialClusterMapper">
+
+    <select id="selectClusterWithCity" resultType="com.gis.housing.dto.SpatialClusterDTO">
+        SELECT sc.city_code, c.city_name, c.province_name, c.lon, c.lat,
+               sc.cluster_label, sc.cluster_desc
+        FROM t_spatial_cluster sc
+        JOIN t_city c ON c.city_code = sc.city_code
+        WHERE sc.task_name = #{taskName}
+        ORDER BY sc.cluster_label, c.city_code
+    </select>
+
+</mapper>

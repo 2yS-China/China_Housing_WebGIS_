@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gis.housing.mapper.CityGroupMapper">
+
+    <select id="selectGroupStats" resultType="com.gis.housing.dto.CityGroupStatsDTO">
+        SELECT g.group_id, g.group_name,
+               #{year} AS year,
+               #{month} AS month,
+               COUNT(DISTINCT gm.city_code) AS city_count,
+               ROUND(AVG(m.price), 2) AS avg_price,
+               MIN(m.price) AS min_price,
+               MAX(m.price) AS max_price,
+               ROUND(STDDEV(m.price), 2) AS stddev_price
+        FROM t_city_group g
+        JOIN t_city_group_member gm ON gm.group_id = g.group_id
+        JOIN t_monthly_price m ON m.city_code = gm.city_code
+        WHERE m.year = #{year} AND m.month = #{month} AND m.price IS NOT NULL
+        <if test="groupId != null">
+            AND g.group_id = #{groupId}
+        </if>
+        GROUP BY g.group_id, g.group_name
+        ORDER BY avg_price DESC
+    </select>
+
+</mapper>

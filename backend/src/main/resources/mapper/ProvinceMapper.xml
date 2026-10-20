@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gis.housing.mapper.ProvinceMapper">
+
+    <select id="selectProvinceStats" resultType="com.gis.housing.dto.ProvinceStatsDTO">
+        SELECT c.province_name,
+               p.center_lon,
+               p.center_lat,
+               #{year} AS year,
+               #{month} AS month,
+               COUNT(DISTINCT c.city_code) AS city_count,
+               ROUND(AVG(m.price), 2) AS avg_price,
+               MIN(m.price) AS min_price,
+               MAX(m.price) AS max_price,
+               ROUND(STDDEV(m.price), 2) AS stddev_price,
+               ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY m.price)::numeric, 2) AS median_price
+        FROM t_monthly_price m
+        JOIN t_city c ON c.city_code = m.city_code
+        LEFT JOIN t_province p ON p.province_name = c.province_name
+        WHERE m.year = #{year} AND m.month = #{month} AND m.price IS NOT NULL
+        GROUP BY c.province_name, p.center_lon, p.center_lat
+        ORDER BY avg_price DESC
+    </select>
+
+    <select id="selectOneProvinceStats" resultType="com.gis.housing.dto.ProvinceStatsDTO">
+        SELECT c.province_name,
+               p.center_lon,
+               p.center_lat,
+               #{year} AS year,
+               #{month} AS month,
+               COUNT(DISTINCT c.city_code) AS city_count,
+               ROUND(AVG(m.price), 2) AS avg_price,
+               MIN(m.price) AS min_price,
+               MAX(m.price) AS max_price,
+               ROUND(STDDEV(m.price), 2) AS stddev_price,
+               ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY m.price)::numeric, 2) AS median_price
+        FROM t_monthly_price m
+        JOIN t_city c ON c.city_code = m.city_code
+        LEFT JOIN t_province p ON p.province_name = c.province_name
+        WHERE c.province_name = #{provinceName}
+          AND m.year = #{year} AND m.month = #{month} AND m.price IS NOT NULL
+        GROUP BY c.province_name, p.center_lon, p.center_lat
+    </select>
+
+</mapper>

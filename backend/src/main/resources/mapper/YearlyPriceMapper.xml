@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gis.housing.mapper.YearlyPriceMapper">
+
+    <select id="selectYoyChange" resultType="com.gis.housing.dto.PriceChangeDTO">
+        SELECT c.city_code, c.city_name, c.province_name, c.lon, c.lat,
+               prev.avg_price AS start_price,
+               curr.avg_price AS end_price,
+               CASE WHEN prev.avg_price > 0
+                    THEN ROUND((curr.avg_price - prev.avg_price) / prev.avg_price * 100, 2)
+                    ELSE NULL
+               END AS change_pct
+        FROM t_yearly_price curr
+        JOIN t_city c ON c.city_code = curr.city_code
+        LEFT JOIN t_yearly_price prev
+            ON prev.city_code = curr.city_code AND prev.year = curr.year - 1
+        WHERE curr.year = #{year} AND curr.avg_price IS NOT NULL
+        ORDER BY change_pct DESC NULLS LAST
+    </select>
+
+</mapper>
